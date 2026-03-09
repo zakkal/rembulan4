@@ -1,0 +1,30 @@
+name: rembulan4
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: 151.243.222.70
+          username: rembulan4@zakkal.my.id
+          password: rembulan4
+          protocol: ftp
+          port: 21
+          passive: true
+          server-dir: /home/zakkalmy/domains/zakkal.my.id/public_html/
+          exclude: |
+            **/.git*
+            **/.github/**
+            **/node_modules/**
+            **/vendor/**

@@ -1,0 +1,111 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Studio Subuh — Moonlight palette */
+    --background: 33 25% 94%;          /* Isabelline #F4F1EC */
+    --foreground: 213 19% 20%;         /* Gunmetal #2A323C */
+
+    --card: 33 20% 97%;
+    --card-foreground: 213 19% 20%;
+
+    --popover: 33 20% 97%;
+    --popover-foreground: 213 19% 20%;
+
+    --primary: 212 72% 59%;            /* Celestial Blue #4A90E2 */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 104 18% 66%;          /* Sage #A3B899 */
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 33 15% 90%;
+    --muted-foreground: 213 10% 45%;
+
+    --accent: 31 56% 81%;              /* Pale Dogwood #EBCFB2 */
+    --accent-foreground: 213 19% 20%;
+
+    --destructive: 0 60% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 33 15% 85%;
+    --input: 33 15% 85%;
+    --ring: 212 72% 59%;
+
+    --radius: 0.75rem;
+
+    /* Chart monochromatic blue scale */
+    --chart-1: 212 72% 59%;            /* Celestial Blue */
+    --chart-2: 212 50% 72%;            /* Light */
+    --chart-3: 212 40% 80%;            /* Lighter */
+    --chart-4: 248 39% 39%;            /* Dark Slate Blue */
+    --chart-5: 212 60% 45%;            /* Deeper blue */
+
+    --sidebar-background: 33 20% 97%;
+    --sidebar-foreground: 213 19% 20%;
+    --sidebar-primary: 212 72% 59%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 33 15% 92%;
+    --sidebar-accent-foreground: 213 19% 20%;
+    --sidebar-border: 33 15% 85%;
+    --sidebar-ring: 212 72% 59%;
+  }
+
+  .dark {
+    --background: 220 20% 10%;
+    --foreground: 33 15% 90%;
+    --card: 220 18% 13%;
+    --card-foreground: 33 15% 90%;
+    --popover: 220 18% 13%;
+    --popover-foreground: 33 15% 90%;
+    --primary: 212 72% 59%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 104 18% 40%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 220 15% 18%;
+    --muted-foreground: 33 10% 60%;
+    --accent: 31 30% 35%;
+    --accent-foreground: 33 15% 90%;
+    --destructive: 0 60% 40%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 15% 20%;
+    --input: 220 15% 20%;
+    --ring: 212 72% 59%;
+    --sidebar-background: 220 18% 11%;
+    --sidebar-foreground: 33 15% 90%;
+    --sidebar-primary: 212 72% 59%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 15% 16%;
+    --sidebar-accent-foreground: 33 15% 90%;
+    --sidebar-border: 220 15% 20%;
+    --sidebar-ring: 212 72% 59%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Lora', serif;
+  }
+
+  h1, h2, h3, h4, h5, h6,
+  button, label, th, nav, [role="menuitem"] {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+}
+
+@layer utilities {
+  .font-heading {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+  .font-body {
+    font-family: 'Lora', serif;
+  }
+}
