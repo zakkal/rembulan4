@@ -19,4 +19,11 @@ export default defineConfig(({ mode }) => ({
       refresh: true,
     }),
     react(),
-    mode === "development" &
+    mode === "development" && componentTagger()
+  ].filter(Boolean),
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
+}));
