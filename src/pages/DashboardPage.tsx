@@ -62,23 +62,23 @@ const DashboardPage = () => {
   return (
     <div className="space-y-8 animate-fade-in">
       <div>
-        <h1 className="font-heading text-2xl font-bold text-foreground">
-          {user?.role === 'mentor' ? `Dashboard — Kelompok ${user.name}` : 'Dashboard Anak Saya'}
+        <h1 className="font-heading text-3xl font-bold text-foreground tracking-wide drop-shadow-md">
+          {user?.role === 'mentor' ? `Dashboard Kelompok ${user.name}` : 'Dashboard Anak Saya'}
         </h1>
-        <p className="font-body text-muted-foreground mt-1">Ringkasan perkembangan santri</p>
+        <p className="font-body text-primary/80 mt-2 tracking-widest uppercase text-sm font-semibold">Ringkasan Perkembangan Santri</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {stats.map((stat) => (
-          <Card key={stat.label} className="border-border">
+          <Card key={stat.label} className="border-white/10 bg-white/5 backdrop-blur-xl hover:bg-white/10 transition-all shadow-lg hover:shadow-[0_0_20px_rgba(124,177,232,0.15)] group">
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
-                <div className={`${stat.color} opacity-80`}>
-                  <stat.icon className="h-5 w-5" />
+                <div className={`p-3 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 ${stat.color} opacity-90 group-hover:bg-primary/20 transition-colors`}>
+                  <stat.icon className="h-6 w-6 DropShadow" />
                 </div>
                 <div>
-                  <p className="font-heading text-2xl font-bold text-foreground">{stat.value}</p>
-                  <p className="font-heading text-xs text-muted-foreground">{stat.label}</p>
+                  <p className="font-heading text-3xl font-bold text-foreground drop-shadow-md">{stat.value}</p>
+                  <p className="font-heading text-[10px] text-foreground/60 uppercase tracking-widest mt-1">{stat.label}</p>
                 </div>
               </div>
             </CardContent>
@@ -87,16 +87,16 @@ const DashboardPage = () => {
       </div>
 
       {chartData.length > 0 && (
-        <Card className="border-border">
+        <Card className="border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_0_30px_rgba(0,0,0,0.2)]">
           <CardHeader>
-            <CardTitle className="font-heading text-lg">Perkembangan Nilai</CardTitle>
+            <CardTitle className="font-heading text-xl text-foreground/90 font-semibold tracking-wide">Perkembangan Nilai</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-72">
+            <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(33 15% 85%)" />
-                  <XAxis dataKey="tanggal" tick={{ fontSize: 12, fontFamily: 'Plus Jakarta Sans' }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                  <XAxis dataKey="tanggal" stroke="rgba(255,255,255,0.5)" tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 12, fontFamily: 'Plus Jakarta Sans' }} />
                   <YAxis domain={[0, 100]} tick={{ fontSize: 12, fontFamily: 'Plus Jakarta Sans' }} />
                   <Tooltip contentStyle={{ fontFamily: 'Plus Jakarta Sans', fontSize: 13 }} />
                   <Legend wrapperStyle={{ fontFamily: 'Plus Jakarta Sans', fontSize: 13 }} />
@@ -111,22 +111,22 @@ const DashboardPage = () => {
       )}
 
       {user?.role === 'mentor' && (
-        <Card className="border-border">
+        <Card className="border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_0_30px_rgba(0,0,0,0.2)]">
           <CardHeader>
-            <CardTitle className="font-heading text-lg">Daftar Murid</CardTitle>
+            <CardTitle className="font-heading text-xl text-foreground/90 font-semibold tracking-wide">Daftar Murid</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               {myMurid.map((m) => (
-                <div key={m.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                <div key={m.id} className="flex items-center justify-between p-4 rounded-xl bg-black/20 border border-white/5 hover:bg-white/5 transition-colors">
                   <div>
-                    <p className="font-heading text-sm font-medium text-foreground">{m.nama}</p>
-                    <p className="font-body text-xs text-muted-foreground">{m.umur} tahun • {m.jenisKelamin === 'L' ? 'Laki-laki' : 'Perempuan'}</p>
+                    <p className="font-heading text-base font-semibold text-foreground tracking-wide">{m.nama}</p>
+                    <p className="font-body text-xs text-foreground/60 mt-1 uppercase tracking-widest">{m.umur} tahun • {m.jenisKelamin === 'L' ? 'Laki-laki' : 'Perempuan'}</p>
                   </div>
                 </div>
               ))}
               {myMurid.length === 0 && (
-                <p className="font-body text-sm text-muted-foreground text-center py-8">Belum ada murid dalam kelompok Anda</p>
+                <p className="font-body text-sm text-foreground/50 text-center py-8">Belum ada murid dalam kelompok Anda</p>
               )}
             </div>
           </CardContent>

@@ -29,14 +29,14 @@ function AppSidebarContent() {
     <Sidebar collapsible="icon">
       <SidebarContent>
         <div className={`p-4 ${collapsed ? 'px-2' : ''}`}>
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <Moon className="w-4 h-4 text-primary" />
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center flex-shrink-0 shadow-[0_0_15px_rgba(124,177,232,0.2)]">
+              <Moon className="w-5 h-5 text-primary" />
             </div>
             {!collapsed && (
               <div>
-                <h2 className="font-heading text-sm font-bold text-foreground">Rembulan 4</h2>
-                <p className="text-xs text-muted-foreground font-heading">Monitoring Santri</p>
+                <h2 className="font-heading text-base font-bold text-foreground tracking-wide">Rembulan <span className="text-primary text-sm align-super">2026</span></h2>
+                <p className="text-xs text-primary/80 font-heading tracking-wider uppercase">Monitoring Santri</p>
               </div>
             )}
           </div>
@@ -84,12 +84,12 @@ function AppSidebarContent() {
 const AppLayout = () => {
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full">
+      <div className="min-h-screen flex w-full relative z-10">
         <AppSidebarContent />
-        <div className="flex-1 flex flex-col">
-          <header className="h-14 flex items-center border-b border-border px-4">
-            <SidebarTrigger className="mr-4" />
-            <h1 className="font-heading text-sm font-medium text-muted-foreground">Program Rembulan 4</h1>
+        <div className="flex-1 flex flex-col bg-transparent">
+          <header className="h-16 flex items-center border-b border-white/10 bg-white/5 backdrop-blur-md px-6 shadow-sm">
+            <SidebarTrigger className="mr-4 text-foreground/80 hover:text-white" />
+            <h1 className="font-heading text-xs font-semibold text-primary/70 tracking-widest uppercase">Program Rembulan 2026</h1>
           </header>
           <main className="flex-1 p-4 md:p-8 overflow-auto">
             <Outlet />
