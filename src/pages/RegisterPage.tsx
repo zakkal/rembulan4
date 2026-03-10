@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth, UserRole } from '@/contexts/AuthContext';
-import { dataStore } from '@/lib/data';
+import { dataStore, Murid } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -16,12 +16,26 @@ const RegisterPage = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [muridId, setMuridId] = useState('');
+  const [allMurid, setAllMurid] = useState<Murid[]>([]);
   const { register } = useAuth();
   const navigate = useNavigate();
 
-  const allMurid = dataStore.getMurid();
+  useEffect(() => {
+    const fetchMurids = async () => {
+      try {
+        const response = await fetch('/api/murids');
+        if (response.ok) {
+          const data = await response.json();
+          setAllMurid(data);
+        }
+      } catch (e) {
+        console.error('Failed to fetch murids', e);
+      }
+    };
+    fetchMurids();
+  }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!role) return;
     if (password !== confirmPassword) {
@@ -37,7 +51,7 @@ const RegisterPage = () => {
       return;
     }
 
-    const success = register({ name, email, whatsapp, password, role, muridId: role === 'wali' ? muridId : undefined });
+    const success = await register({ name, email, whatsapp, password, role, muridId: role === 'wali' ? muridId : undefined });
     if (success) {
       toast.success('Pendaftaran berhasil!');
       navigate('/');

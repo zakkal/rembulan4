@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { dataStore } from '@/lib/data';
+import { dataStore, Murid, NilaiIbadah, NilaiTahsin, NilaiDoa } from '@/lib/data';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
@@ -8,21 +8,55 @@ import { Download } from 'lucide-react';
 
 const LaporanPage = () => {
   const { user } = useAuth();
-  const allMurid = dataStore.getMurid();
-  const nilaiIbadah = dataStore.getNilaiIbadah();
-  const nilaiTahsin = dataStore.getNilaiTahsin();
-  const nilaiDoa = dataStore.getNilaiDoa();
+  const [allMurid, setAllMurid] = useState<Murid[]>([]);
+  const [nilaiIbadah, setNilaiIbadah] = useState<NilaiIbadah[]>([]);
+  const [nilaiTahsin, setNilaiTahsin] = useState<NilaiTahsin[]>([]);
+  const [nilaiDoa, setNilaiDoa] = useState<NilaiDoa[]>([]);
+  const [isLoadingData, setIsLoadingData] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [murids, ibadah, tahsin, doa] = await Promise.all([
+          fetch('/api/murids').then(res => res.json()),
+          fetch('/api/nilai-ibadah').then(res => res.json()),
+          fetch('/api/nilai-tahsin').then(res => res.json()),
+          fetch('/api/nilai-doa').then(res => res.json()),
+        ]);
+        setAllMurid(murids);
+        setNilaiIbadah(ibadah);
+        setNilaiTahsin(tahsin);
+        setNilaiDoa(doa);
+      } catch (e) {
+        console.error('Failed to fetch report data', e);
+      } finally {
+        setIsLoadingData(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   const myMurid = user?.role === 'mentor'
-    ? allMurid.filter((m) => m.mentorId === user.id)
+    ? allMurid.filter((m) => m.mentorId === String(user.id))
     : allMurid.filter((m) => m.id === user?.muridId);
 
-  const [selectedMuridId, setSelectedMuridId] = useState(myMurid[0]?.id || '');
+  const [selectedMuridId, setSelectedMuridId] = useState('');
+
+  useEffect(() => {
+    if (myMurid.length > 0 && !selectedMuridId) {
+      setSelectedMuridId(myMurid[0].id);
+    }
+  }, [myMurid, selectedMuridId]);
+
   const selectedMurid = myMurid.find((m) => m.id === selectedMuridId);
 
   const muridIbadah = nilaiIbadah.filter((n) => n.muridId === selectedMuridId).sort((a, b) => a.tanggal.localeCompare(b.tanggal));
   const muridTahsin = nilaiTahsin.filter((n) => n.muridId === selectedMuridId).sort((a, b) => a.tanggal.localeCompare(b.tanggal));
   const muridDoa = nilaiDoa.filter((n) => n.muridId === selectedMuridId).sort((a, b) => a.tanggal.localeCompare(b.tanggal));
+
+  if (isLoadingData) {
+    return <div className="flex items-center justify-center min-h-[400px] text-primary/50 font-heading">Memuat data...</div>;
+  }
 
   const avgIbadah = muridIbadah.length ? Math.round(muridIbadah.reduce((s, n) => s + (n.sholat + n.adab + n.kedisiplinan + n.keaktifan) / 4, 0) / muridIbadah.length) : 0;
   const avgTahsin = muridTahsin.length ? Math.round(muridTahsin.reduce((s, n) => s + (n.makharijulHuruf + n.tajwid + n.kelancaran + n.adabMembaca) / 4, 0) / muridTahsin.length) : 0;

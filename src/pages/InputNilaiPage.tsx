@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { dataStore, Murid, NilaiIbadah, NilaiTahsin, NilaiDoa } from '@/lib/data';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,11 +10,45 @@ import { toast } from 'sonner';
 
 const InputNilaiPage = () => {
   const { user } = useAuth();
-  const allMurid = dataStore.getMurid();
-  const myMurid = allMurid.filter((m) => m.mentorId === user?.id);
-  const [selectedMurid, setSelectedMurid] = useState<string>(myMurid[0]?.id || '');
+  const [allMurid, setAllMurid] = useState<Murid[]>([]);
+  const [nilaiIbadah, setNilaiIbadah] = useState<NilaiIbadah[]>([]);
+  const [nilaiTahsin, setNilaiTahsin] = useState<NilaiTahsin[]>([]);
+  const [nilaiDoa, setNilaiDoa] = useState<NilaiDoa[]>([]);
+  const [isLoadingData, setIsLoadingData] = useState(true);
+
+  const [selectedMurid, setSelectedMurid] = useState<string>('');
   const [tanggal, setTanggal] = useState(new Date().toISOString().slice(0, 10));
   const [catatan, setCatatan] = useState('');
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [murids, ibadah, tahsin, doa] = await Promise.all([
+          dataStore.getMurid(),
+          dataStore.getNilaiIbadah(),
+          dataStore.getNilaiTahsin(),
+          dataStore.getNilaiDoa(),
+        ]);
+        setAllMurid(murids);
+        setNilaiIbadah(ibadah);
+        setNilaiTahsin(tahsin);
+        setNilaiDoa(doa);
+      } catch (e) {
+        console.error('Failed to fetch data', e);
+      } finally {
+        setIsLoadingData(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const myMurid = allMurid.filter((m) => m.mentorId === String(user?.id));
+
+  useEffect(() => {
+    if (myMurid.length > 0 && !selectedMurid) {
+      setSelectedMurid(myMurid[0].id);
+    }
+  }, [myMurid, selectedMurid]);
 
   // Ibadah
   const [sholat, setSholat] = useState('');
@@ -35,41 +69,41 @@ const InputNilaiPage = () => {
 
   const clamp = (v: string) => Math.min(100, Math.max(0, Number(v) || 0));
 
-  const saveIbadah = () => {
+  const saveIbadah = async () => {
     if (!selectedMurid || !sholat) { toast.error('Lengkapi data'); return; }
-    const data = dataStore.getNilaiIbadah();
     const entry: NilaiIbadah = {
       id: `ni${Date.now()}`, muridId: selectedMurid, mentorId: user!.id, tanggal,
       sholat: clamp(sholat), adab: clamp(adab), kedisiplinan: clamp(kedisiplinan), keaktifan: clamp(keaktifan), catatan,
     };
-    data.push(entry);
-    dataStore.setNilaiIbadah(data);
+    const updated = [...nilaiIbadah, entry];
+    await dataStore.syncNilaiIbadah(updated);
+    setNilaiIbadah(updated);
     toast.success('Nilai ibadah tersimpan');
     setSholat(''); setAdab(''); setKedisiplinan(''); setKeaktifan(''); setCatatan('');
   };
 
-  const saveTahsin = () => {
+  const saveTahsin = async () => {
     if (!selectedMurid || !makharijul) { toast.error('Lengkapi data'); return; }
-    const data = dataStore.getNilaiTahsin();
     const entry: NilaiTahsin = {
       id: `nt${Date.now()}`, muridId: selectedMurid, mentorId: user!.id, tanggal,
       makharijulHuruf: clamp(makharijul), tajwid: clamp(tajwid), kelancaran: clamp(kelancaran), adabMembaca: clamp(adabMembaca), catatan,
     };
-    data.push(entry);
-    dataStore.setNilaiTahsin(data);
+    const updated = [...nilaiTahsin, entry];
+    await dataStore.syncNilaiTahsin(updated);
+    setNilaiTahsin(updated);
     toast.success('Nilai tahsin tersimpan');
     setMakharijul(''); setTajwid(''); setKelancaran(''); setAdabMembaca(''); setCatatan('');
   };
 
-  const saveDoa = () => {
+  const saveDoa = async () => {
     if (!selectedMurid || !hafalan) { toast.error('Lengkapi data'); return; }
-    const data = dataStore.getNilaiDoa();
     const entry: NilaiDoa = {
       id: `nd${Date.now()}`, muridId: selectedMurid, mentorId: user!.id, tanggal,
       hafalan: clamp(hafalan), kelancaran: clamp(kelancaranDoa), pemahaman: clamp(pemahaman), catatan,
     };
-    data.push(entry);
-    dataStore.setNilaiDoa(data);
+    const updated = [...nilaiDoa, entry];
+    await dataStore.syncNilaiDoa(updated);
+    setNilaiDoa(updated);
     toast.success('Nilai doa tersimpan');
     setHafalan(''); setKelancaranDoa(''); setPemahaman(''); setCatatan('');
   };

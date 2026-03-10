@@ -1,18 +1,46 @@
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { dataStore } from '@/lib/data';
+import { dataStore, Murid, NilaiIbadah, NilaiTahsin, NilaiDoa } from '@/lib/data';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, BookOpen, Star, Heart } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 const DashboardPage = () => {
   const { user } = useAuth();
-  const allMurid = dataStore.getMurid();
-  const nilaiIbadah = dataStore.getNilaiIbadah();
-  const nilaiTahsin = dataStore.getNilaiTahsin();
-  const nilaiDoa = dataStore.getNilaiDoa();
+  const [allMurid, setAllMurid] = useState<Murid[]>([]);
+  const [nilaiIbadah, setNilaiIbadah] = useState<NilaiIbadah[]>([]);
+  const [nilaiTahsin, setNilaiTahsin] = useState<NilaiTahsin[]>([]);
+  const [nilaiDoa, setNilaiDoa] = useState<NilaiDoa[]>([]);
+  const [isLoadingData, setIsLoadingData] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [murids, ibadah, tahsin, doa] = await Promise.all([
+          fetch('/api/murids').then(res => res.json()),
+          fetch('/api/nilai-ibadah').then(res => res.json()),
+          fetch('/api/nilai-tahsin').then(res => res.json()),
+          fetch('/api/nilai-doa').then(res => res.json()),
+        ]);
+        setAllMurid(murids);
+        setNilaiIbadah(ibadah);
+        setNilaiTahsin(tahsin);
+        setNilaiDoa(doa);
+      } catch (e) {
+        console.error('Failed to fetch dashboard data', e);
+      } finally {
+        setIsLoadingData(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  if (isLoadingData) {
+    return <div className="flex items-center justify-center min-h-[400px] text-primary/50 font-heading">Memuat data...</div>;
+  }
 
   const myMurid = user?.role === 'mentor'
-    ? allMurid.filter((m) => m.mentorId === user.id)
+    ? allMurid.filter((m) => m.mentorId === String(user.id))
     : allMurid.filter((m) => m.id === user?.muridId);
 
   const myMuridIds = myMurid.map((m) => m.id);

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { dataStore, Murid } from '@/lib/data';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,12 +11,30 @@ import { toast } from 'sonner';
 
 const DataMuridPage = () => {
   const { user } = useAuth();
-  const [muridList, setMuridList] = useState<Murid[]>(dataStore.getMurid());
+  const [muridList, setMuridList] = useState<Murid[]>([]);
   const [search, setSearch] = useState('');
   const [editMurid, setEditMurid] = useState<Murid | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoadingData, setIsLoadingData] = useState(true);
 
-  const myMurid = muridList.filter((m) => m.mentorId === user?.id);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/api/murids');
+        if (response.ok) {
+          const data = await response.json();
+          setMuridList(data);
+        }
+      } catch (e) {
+        console.error('Failed to fetch', e);
+      } finally {
+        setIsLoadingData(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const myMurid = muridList.filter((m) => m.mentorId === String(user?.id));
   const filtered = myMurid.filter((m) => m.nama.toLowerCase().includes(search.toLowerCase()));
 
   const [form, setForm] = useState({ nama: '', jenisKelamin: 'L' as 'L' | 'P', umur: '', namaOrangTua: '', whatsappOrangTua: '' });
@@ -37,7 +55,7 @@ const DataMuridPage = () => {
     setIsOpen(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!form.nama || !form.umur || !form.namaOrangTua) {
       toast.error('Mohon lengkapi data');
       return;
@@ -56,16 +74,16 @@ const DataMuridPage = () => {
       updated = [...muridList, newMurid];
       toast.success('Murid berhasil ditambahkan');
     }
-    dataStore.setMurid(updated);
+    await dataStore.syncMurid(updated);
     setMuridList(updated);
     setIsOpen(false);
     resetForm();
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (!confirm('Yakin ingin menghapus murid ini?')) return;
     const updated = muridList.filter((m) => m.id !== id);
-    dataStore.setMurid(updated);
+    await dataStore.syncMurid(updated);
     setMuridList(updated);
     toast.success('Murid dihapus');
   };

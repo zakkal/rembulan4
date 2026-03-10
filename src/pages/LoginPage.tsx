@@ -15,13 +15,13 @@ const LoginPage = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedRole) {
       toast.error('Silakan pilih peran terlebih dahulu');
       return;
     }
-    const success = login(email, password, selectedRole);
+    const success = await login(email, password, selectedRole);
     if (success) {
       toast.success('Berhasil masuk');
       navigate('/');

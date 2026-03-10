@@ -74,7 +74,7 @@ export const DEMO_NILAI_DOA: NilaiDoa[] = [
   { id: 'nd4', muridId: 's4', mentorId: 'm2', tanggal: '2026-03-01', hafalan: 90, kelancaran: 92, pemahaman: 85, catatan: 'Baik' },
 ];
 
-// Helper to get/set from localStorage with demo fallback
+// Helper to get from localStorage with demo fallback
 function getStore<T>(key: string, demo: T[]): T[] {
   const stored = localStorage.getItem(`rembulan_${key}`);
   if (stored) return JSON.parse(stored);
@@ -90,12 +90,67 @@ export const dataStore = {
   getMurid: () => getStore<Murid>('murid', DEMO_MURID),
   setMurid: (data: Murid[]) => setStore('murid', data),
 
-  getNilaiIbadah: () => getStore<NilaiIbadah>('nilai_ibadah', DEMO_NILAI_IBADAH),
+  syncMurid: async (data: Murid[]) => {
+    setStore('murid', data);
+    await fetch('/api/murids', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+  },
+
+  getNilaiIbadah: () => getStore<NilaiIbadah>('nilai_ibadah', []),
   setNilaiIbadah: (data: NilaiIbadah[]) => setStore('nilai_ibadah', data),
 
-  getNilaiTahsin: () => getStore<NilaiTahsin>('nilai_tahsin', DEMO_NILAI_TAHSIN),
+  getNilaiTahsin: () => getStore<NilaiTahsin>('nilai_tahsin', []),
   setNilaiTahsin: (data: NilaiTahsin[]) => setStore('nilai_tahsin', data),
 
-  getNilaiDoa: () => getStore<NilaiDoa>('nilai_doa', DEMO_NILAI_DOA),
+  getNilaiDoa: () => getStore<NilaiDoa>('nilai_doa', []),
   setNilaiDoa: (data: NilaiDoa[]) => setStore('nilai_doa', data),
+
+  // New methods to sync with backend
+  fetchFromBackend: async () => {
+    try {
+      const [murids, ibadah, tahsin, doa] = await Promise.all([
+        fetch('/api/murids').then(res => res.json()),
+        fetch('/api/nilai-ibadah').then(res => res.json()),
+        fetch('/api/nilai-tahsin').then(res => res.json()),
+        fetch('/api/nilai-doa').then(res => res.json()),
+      ]);
+
+      if (murids.length) setStore('murid', murids);
+      setStore('nilai_ibadah', ibadah);
+      setStore('nilai_tahsin', tahsin);
+      setStore('nilai_doa', doa);
+    } catch (e) {
+      console.error('Failed to sync with backend', e);
+    }
+  },
+
+  syncNilaiIbadah: async (data: NilaiIbadah[]) => {
+    setStore('nilai_ibadah', data);
+    await fetch('/api/nilai-ibadah', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+  },
+
+  syncNilaiTahsin: async (data: NilaiTahsin[]) => {
+    setStore('nilai_tahsin', data);
+    await fetch('/api/nilai-tahsin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+  },
+
+  syncNilaiDoa: async (data: NilaiDoa[]) => {
+    setStore('nilai_doa', data);
+    await fetch('/api/nilai-doa', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+  }
 };

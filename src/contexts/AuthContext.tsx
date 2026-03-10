@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { dataStore } from '@/lib/data';
 
 export type UserRole = 'mentor' | 'wali';
 
@@ -13,8 +14,8 @@ export interface User {
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string, role: UserRole) => boolean;
-  register: (data: RegisterData) => boolean;
+  login: (email: string, password: string, role: UserRole) => Promise<boolean>;
+  register: (data: RegisterData) => Promise<boolean>;
   logout: () => void;
   isLoading: boolean;
 }
@@ -44,42 +45,55 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const saved = localStorage.getItem('rembulan_user');
     if (saved) {
-      setUser(JSON.parse(saved));
+      const parsedUser = JSON.parse(saved);
+      setUser(parsedUser);
+      dataStore.fetchFromBackend();
     }
     setIsLoading(false);
   }, []);
 
-  const login = (email: string, password: string, role: UserRole): boolean => {
-    const allUsers = JSON.parse(localStorage.getItem('rembulan_all_users') || JSON.stringify(DEMO_USERS));
-    const found = allUsers.find((u: any) => u.email === email && u.password === password && u.role === role);
-    if (found) {
-      const { password: _, ...userData } = found;
-      setUser(userData);
-      localStorage.setItem('rembulan_user', JSON.stringify(userData));
-      return true;
+  const login = async (email: string, password: string, role: UserRole): Promise<boolean> => {
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, role }),
+      });
+
+      if (response.ok) {
+        const userData = await response.json();
+        setUser(userData);
+        localStorage.setItem('rembulan_user', JSON.stringify(userData));
+        dataStore.fetchFromBackend();
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Login error:', error);
+      return false;
     }
-    return false;
   };
 
-  const register = (data: RegisterData): boolean => {
-    const allUsers = JSON.parse(localStorage.getItem('rembulan_all_users') || JSON.stringify(DEMO_USERS));
-    const exists = allUsers.find((u: any) => u.email === data.email);
-    if (exists) return false;
-    const newUser = {
-      id: data.role === 'mentor' ? `m${Date.now()}` : `w${Date.now()}`,
-      name: data.name,
-      email: data.email,
-      whatsapp: data.whatsapp,
-      role: data.role,
-      password: data.password,
-      muridId: data.muridId,
-    };
-    allUsers.push(newUser);
-    localStorage.setItem('rembulan_all_users', JSON.stringify(allUsers));
-    const { password: _, ...userData } = newUser;
-    setUser(userData);
-    localStorage.setItem('rembulan_user', JSON.stringify(userData));
-    return true;
+  const register = async (data: RegisterData): Promise<boolean> => {
+    try {
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        const userData = await response.json();
+        setUser(userData);
+        localStorage.setItem('rembulan_user', JSON.stringify(userData));
+        dataStore.fetchFromBackend();
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Registration error:', error);
+      return false;
+    }
   };
 
   const logout = () => {

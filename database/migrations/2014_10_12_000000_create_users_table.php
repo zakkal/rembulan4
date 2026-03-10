@@ -15,6 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
+            $table->string('whatsapp')->nullable();
+            $table->enum('role', ['mentor', 'wali'])->default('mentor');
+            $table->string('murid_id')->nullable(); // For Wali Murid to link to a student
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
