@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('nilai_doas', function (Blueprint $table) {
-            $table->id();
+            $table->string('id')->primary();
             $table->string('muridId');
             $table->string('mentorId');
             $table->date('tanggal');

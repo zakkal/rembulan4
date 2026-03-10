@@ -24,10 +24,10 @@ const InputNilaiPage = () => {
     const fetchData = async () => {
       try {
         const [murids, ibadah, tahsin, doa] = await Promise.all([
-          dataStore.getMurid(),
-          dataStore.getNilaiIbadah(),
-          dataStore.getNilaiTahsin(),
-          dataStore.getNilaiDoa(),
+          fetch('/api/murids').then(res => res.json()),
+          fetch('/api/nilai-ibadah').then(res => res.json()),
+          fetch('/api/nilai-tahsin').then(res => res.json()),
+          fetch('/api/nilai-doa').then(res => res.json()),
         ]);
         setAllMurid(murids);
         setNilaiIbadah(ibadah);

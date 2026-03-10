@@ -74,10 +74,14 @@ const DataMuridPage = () => {
       updated = [...muridList, newMurid];
       toast.success('Murid berhasil ditambahkan');
     }
-    await dataStore.syncMurid(updated);
-    setMuridList(updated);
-    setIsOpen(false);
-    resetForm();
+    const success = await dataStore.syncMurid(updated);
+    if (success) {
+      setMuridList(updated);
+      setIsOpen(false);
+      resetForm();
+    } else {
+      toast.error('Gagal menyimpan data ke server');
+    }
   };
 
   const handleDelete = async (id: string) => {

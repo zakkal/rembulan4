@@ -13,6 +13,17 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get('/debug-db', function() {
+    return response()->json([
+        'connection' => config('database.default'),
+        'database' => config('database.connections.mysql.database'),
+        'host' => config('database.connections.mysql.host'),
+        'user' => config('database.connections.mysql.username'),
+        'murid_count' => \App\Models\Murid::count(),
+        'first_murid' => \App\Models\Murid::first(),
+    ]);
+});
+
 Route::get('/{any}', function () {
     return view('welcome');
 })->where('any', '.*');
