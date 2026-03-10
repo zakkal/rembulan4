@@ -5,7 +5,6 @@ export interface Murid {
   umur: number;
   namaOrangTua: string;
   whatsappOrangTua: string;
-  mentorId: string;
 }
 
 export interface NilaiIbadah {
@@ -77,14 +76,21 @@ export const dataStore = {
     try {
       const response = await fetch('/api/murids', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         body: JSON.stringify(data),
       });
-      if (!response.ok) throw new Error('Failed to sync murids');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Server error');
+      }
       console.log('Murids synced successfully');
       return true;
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
+      alert('Gagal simpan ke database: ' + e.message);
       return false;
     }
   },
@@ -101,11 +107,12 @@ export const dataStore = {
   // New methods to sync with backend
   fetchFromBackend: async () => {
     try {
+      const headers = { 'Accept': 'application/json' };
       const [murids, ibadah, tahsin, doa] = await Promise.all([
-        fetch('/api/murids').then(res => res.json()),
-        fetch('/api/nilai-ibadah').then(res => res.json()),
-        fetch('/api/nilai-tahsin').then(res => res.json()),
-        fetch('/api/nilai-doa').then(res => res.json()),
+        fetch('/api/murids', { headers }).then(res => res.json()),
+        fetch('/api/nilai-ibadah', { headers }).then(res => res.json()),
+        fetch('/api/nilai-tahsin', { headers }).then(res => res.json()),
+        fetch('/api/nilai-doa', { headers }).then(res => res.json()),
       ]);
 
       setStore('murid', murids);
@@ -122,7 +129,10 @@ export const dataStore = {
     try {
       const response = await fetch('/api/nilai-ibadah', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         body: JSON.stringify(data),
       });
       if (!response.ok) throw new Error('Failed to sync ibadah');
@@ -138,7 +148,10 @@ export const dataStore = {
     try {
       const response = await fetch('/api/nilai-tahsin', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         body: JSON.stringify(data),
       });
       if (!response.ok) throw new Error('Failed to sync tahsin');
@@ -154,7 +167,10 @@ export const dataStore = {
     try {
       const response = await fetch('/api/nilai-doa', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         body: JSON.stringify(data),
       });
       if (!response.ok) throw new Error('Failed to sync doa');

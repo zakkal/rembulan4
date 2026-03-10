@@ -34,8 +34,8 @@ const DataMuridPage = () => {
     fetchData();
   }, []);
 
-  const myMurid = muridList.filter((m) => m.mentorId === String(user?.id));
-  const filtered = myMurid.filter((m) => m.nama.toLowerCase().includes(search.toLowerCase()));
+  // Show all students globally
+  const filtered = muridList.filter((m) => m.nama.toLowerCase().includes(search.toLowerCase()));
 
   const [form, setForm] = useState({ nama: '', jenisKelamin: 'L' as 'L' | 'P', umur: '', namaOrangTua: '', whatsappOrangTua: '' });
 
@@ -69,7 +69,6 @@ const DataMuridPage = () => {
         id: `s${Date.now()}`,
         ...form,
         umur: Number(form.umur),
-        mentorId: user!.id,
       };
       updated = [...muridList, newMurid];
       toast.success('Murid berhasil ditambahkan');

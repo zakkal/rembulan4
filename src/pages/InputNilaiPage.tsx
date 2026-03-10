@@ -42,7 +42,7 @@ const InputNilaiPage = () => {
     fetchData();
   }, []);
 
-  const myMurid = allMurid.filter((m) => m.mentorId === String(user?.id));
+  const myMurid = allMurid;
 
   useEffect(() => {
     if (myMurid.length > 0 && !selectedMurid) {

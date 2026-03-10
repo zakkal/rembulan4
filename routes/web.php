@@ -24,6 +24,22 @@ Route::get('/debug-db', function() {
     ]);
 });
 
+Route::get('/test-db-save', function() {
+    try {
+        $m = \App\Models\Murid::create([
+            'id' => 'test_' . time(),
+            'nama' => 'Test ' . date('H:i:s'),
+            'jenisKelamin' => 'L',
+            'umur' => 10,
+            'namaOrangTua' => 'Parent',
+            'whatsappOrangTua' => '0812'
+        ]);
+        return response()->json(['success' => true, 'murid' => $m]);
+    } catch (\Exception $e) {
+        return response()->json(['success' => false, 'error' => $e->getMessage()]);
+    }
+});
+
 Route::get('/{any}', function () {
     return view('welcome');
 })->where('any', '.*');

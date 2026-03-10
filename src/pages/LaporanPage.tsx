@@ -37,7 +37,7 @@ const LaporanPage = () => {
   }, []);
 
   const myMurid = user?.role === 'mentor'
-    ? allMurid.filter((m) => m.mentorId === String(user.id))
+    ? allMurid
     : allMurid.filter((m) => m.id === user?.muridId);
 
   const [selectedMuridId, setSelectedMuridId] = useState('');

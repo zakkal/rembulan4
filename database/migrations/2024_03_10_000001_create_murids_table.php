@@ -15,7 +15,6 @@ return new class extends Migration
             $table->integer('umur');
             $table->string('namaOrangTua');
             $table->string('whatsappOrangTua');
-            $table->string('mentorId');
             $table->timestamps();
         });
     }

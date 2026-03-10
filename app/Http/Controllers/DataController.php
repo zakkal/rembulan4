@@ -17,15 +17,28 @@ class DataController extends Controller
     }
 
     public function saveMurids(Request $request) {
-        $items = $request->all();
-        \Log::info('API: Received Sync Request', ['count' => count($items)]);
+        \Log::info('DEBUG: DataController@saveMurids hit!');
+        $items = $request->json()->all();
+        $db = \DB::connection()->getDatabaseName();
+        \Log::info('API: Murids Sync Start', ['db' => $db, 'count' => is_array($items) ? count($items) : 0]);
         
-        foreach ($items as $item) {
-            $murid = Murid::firstOrNew(['id' => $item['id']]);
-            $murid->fill($item);
-            $murid->save();
+        if (!is_array($items)) {
+            return response()->json(['success' => false, 'error' => 'Data must be an array'], 400);
         }
-        return response()->json(['success' => true]);
+
+        try {
+            foreach ($items as $item) {
+                if (!isset($item['id'])) continue;
+                \Log::info('API: Saving Murid', ['id' => $item['id'], 'nama' => $item['nama'] ?? '??']);
+                $murid = Murid::firstOrNew(['id' => $item['id']]);
+                $murid->fill($item);
+                $murid->save();
+            }
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            \Log::error('API: Murids Sync Failed', ['error' => $e->getMessage()]);
+            return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+        }
     }
 
     public function getNilaiIbadah() {

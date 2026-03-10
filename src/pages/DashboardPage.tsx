@@ -40,7 +40,7 @@ const DashboardPage = () => {
   }
 
   const myMurid = user?.role === 'mentor'
-    ? allMurid.filter((m) => m.mentorId === String(user.id))
+    ? allMurid
     : allMurid.filter((m) => m.id === user?.muridId);
 
   const myMuridIds = myMurid.map((m) => m.id);

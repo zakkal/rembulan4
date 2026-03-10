@@ -20,6 +20,5 @@ class Murid extends Model
         'umur',
         'namaOrangTua',
         'whatsappOrangTua',
-        'mentorId',
     ];
 }
